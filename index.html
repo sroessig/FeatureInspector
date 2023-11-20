@@ -13,7 +13,7 @@
 
         <div class="row">
             <div class="col-sm">
-           
+
                 <h2>Features</h2>
 
                 <button type="button" class="btn btn-dark" id="new">New comparison</button>
@@ -24,21 +24,7 @@
         </div>
 
         <div class="row">
-            <div class="col-9">
-
-                <h5>Stops</h5>
-
-                <button type="button" class="btn btn-secondary sounds" value="t">t</button>
-                <button type="button" class="btn btn-secondary sounds" value="d">d</button>
-                <br><br>
-
-                <h5>Nasals</h5>
-                <button type="button" class="btn btn-secondary sounds" value="m">m</button>
-                <button type="button" class="btn btn-secondary sounds" value="n">n</button>
-                <button type="button" class="btn btn-secondary sounds" value="ŋ">ŋ</button>
-                <button type="button" class="btn btn-secondary sounds" value="ɲ">ɲ</button>
-                <button type="button" class="btn btn-secondary sounds" value="ɴ">ɴ</button>
-
+            <div class="col-9" id="keyboard">
             </div>
             <div class="col-sm" id="result1">
             </div>
@@ -49,38 +35,70 @@
 
         <script>
 
-            let symbol1 = ""
-            let symbol2 = ""
 
-            let sounds_picked = 0
-
-            $(".sounds").on("click", function () {
-
-                if (sounds_picked == 0) {
-                    symbol1 = $(this).val()
-                    $(this).removeClass("btn-secondary").addClass("btn-primary")
-                    $(this).prop("disabled", true)
-                }
-
-                else if (sounds_picked == 1) {
-                    symbol2 = $(this).val()
-                    $(this).removeClass("btn-secondary").addClass("btn-primary")
-                    $(this).prop("disabled", true)
-                    compare(symbol1, symbol2)
-                }
-                sounds_picked += 1
-            })
-
-            $("#new").on("click", function () {
-                $(".sounds").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
-                $("#result1").html("")
-                $("#result2").html("")
-                sounds_picked = 0
-            })
-
+            // Get data
             $.getJSON('http://localhost:8000/data.json', function (data) {
                 sounds = data
-            });
+
+
+            }).then(function (data) {
+
+                // Populate UI:
+                // Find all different manner groups (plosives, nasals, fricatives, ...)
+                // and make one heading and div for them
+                let n_sounds = Object.keys(sounds).length
+                let distinct_sounds = Object.keys(sounds)
+                let manner_groups = []
+                for (let i = 0; i < n_sounds; i++) {
+
+                    let this_sound = distinct_sounds[i]
+                    let manner_group = sounds[this_sound].manner_group
+
+                    // If there hasn't been a sound of this manner group
+                    // Create new div and heading
+                    if (!manner_groups.includes(manner_group)) {
+                        manner_groups.push(manner_group)
+                        $("#keyboard").append("<div id=" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
+                    }
+
+                    $("#" + manner_group).append('<button type="button" class="btn btn-secondary sounds" value="' + this_sound + '">' + this_sound + '</button> ')
+
+                }
+
+                let symbol1 = ""
+                let symbol2 = ""
+
+                let sounds_picked = 0
+
+                // Functionality of sounds "keyboard"
+                $(".sounds").on("click", function () {
+
+                    console.log("bla")
+
+                    if (sounds_picked == 0) {
+                        symbol1 = $(this).val()
+                        $(this).removeClass("btn-secondary").addClass("btn-primary")
+                        $(this).prop("disabled", true)
+                    }
+
+                    else if (sounds_picked == 1) {
+                        symbol2 = $(this).val()
+                        $(this).removeClass("btn-secondary").addClass("btn-primary")
+                        $(this).prop("disabled", true)
+                        compare(symbol1, symbol2)
+                    }
+                    sounds_picked += 1
+                })
+
+                // Functionality of "new comparison" button
+                $("#new").on("click", function () {
+                    $(".sounds").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                    $("#result1").html("")
+                    $("#result2").html("")
+                    sounds_picked = 0
+                })
+
+            })
 
             // Compare to sounds
             function compare(symbol1, symbol2) {
@@ -103,19 +121,19 @@
                     feat_value2 = feature_bndl2[feature_list[i]].toString()
                     feature = feature_list[i]
 
-                    if (feat_value1 != feat_value2) {                        
+                    if (feat_value1 != feat_value2) {
                         $("#result1").append("<br>" + "[" + minus_plus_zero(feat_value1) + feature + "]")
                         $("#result2").append("<br>" + "[" + minus_plus_zero(feat_value2) + feature + "]")
                     }
                 }
             }
 
-            
+
             function minus_plus_zero(value) {
-                    if (value == "0") return "0"
-                    else if (value == "true") return "+"
-                    else if (value == "false") return "-"
-                }
+                if (value == "0") return "0"
+                else if (value == "true") return "+"
+                else if (value == "false") return "-"
+            }
 
 
         </script>
