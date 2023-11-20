@@ -24,7 +24,7 @@
         </div>
 
         <div class="row">
-            <div class="col-sm">
+            <div class="col-9">
 
                 <h5>Stops</h5>
 
@@ -40,8 +40,9 @@
                 <button type="button" class="btn btn-secondary sounds" value="ɴ">ɴ</button>
 
             </div>
-            <div class="col-sm">
-                <div id="result"></div>
+            <div class="col-sm" id="result1">
+            </div>
+            <div class="col-sm" id="result2">
             </div>
 
         </div>
@@ -58,19 +59,22 @@
                 if (sounds_picked == 0) {
                     symbol1 = $(this).val()
                     $(this).removeClass("btn-secondary").addClass("btn-primary")
+                    $(this).prop("disabled", true)
                 }
 
                 else if (sounds_picked == 1) {
                     symbol2 = $(this).val()
                     $(this).removeClass("btn-secondary").addClass("btn-primary")
+                    $(this).prop("disabled", true)
                     compare(symbol1, symbol2)
                 }
                 sounds_picked += 1
             })
 
             $("#new").on("click", function () {
-                $(".sounds").removeClass("btn-primary").addClass("btn-secondary")
-                $("#result").html("")
+                $(".sounds").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                $("#result1").html("")
+                $("#result2").html("")
                 sounds_picked = 0
             })
 
@@ -90,23 +94,28 @@
                 let feature_list = Object.keys(feature_bndl1)
                 let n_features = feature_list.length
 
+                $("#result1").append("<b>[" + symbol1 + "]</b>")
+                $("#result2").append("<b>[" + symbol2 + "]</b>")
+
                 for (let i = 0; i < n_features; i++) {
 
-                    // TODO: more transparent syntax needed here
-                    if (feature_bndl1[feature_list[i]].toString() != feature_bndl2[feature_list[i]].toString()) {
-                        $("#result").append("<br>" + symbol1 + ": [" + minus_plus_zero(feature_bndl1[feature_list[i]].toString()) + feature_list[i] + "]")
-                        $("#result").append("<br>" + symbol2 + ": [" + minus_plus_zero(feature_bndl2[feature_list[i]].toString()) + feature_list[i] + "]")
+                    feat_value1 = feature_bndl1[feature_list[i]].toString()
+                    feat_value2 = feature_bndl2[feature_list[i]].toString()
+                    feature = feature_list[i]
+
+                    if (feat_value1 != feat_value2) {                        
+                        $("#result1").append("<br>" + "[" + minus_plus_zero(feat_value1) + feature + "]")
+                        $("#result2").append("<br>" + "[" + minus_plus_zero(feat_value2) + feature + "]")
                     }
                 }
+            }
 
-
-                function minus_plus_zero(value) {
+            
+            function minus_plus_zero(value) {
                     if (value == "0") return "0"
                     else if (value == "true") return "+"
                     else if (value == "false") return "-"
                 }
-
-            }
 
 
         </script>
