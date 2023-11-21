@@ -17,9 +17,13 @@
 
 
     <div class="container">
+
+        <div>
         <br>
-        <h2>Features</h2>
+        <img src="logo.png" alt="logo" width="50px" style="float: left"> 
+        <h2>&nbsp;Feature Inspector</h2>
         <br>
+        </div>
 
         <!--Tab navigation-->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -38,9 +42,11 @@
             <div class="tab-pane fade show active" id="comparison" role="tabpanel" aria-labelledby="comparison-tab">
 
                 <div class="row">
-                    <div class="col-sm">
+                    <div class="col-9">
 
                         <br>
+                        <p>Find out about the differences between two sounds in terms of their feature specifications. Select two sounds and view the result on the right side. 
+                            Use the button "New comparison" to remove previous results and start the next comparison.</p>
                         <button type="button" class="btn btn-dark" id="new">New comparison</button>
 
                         <br>
@@ -60,6 +66,11 @@
             </div>
 
             <div class="tab-pane fade" id="single" role="tabpanel" aria-labelledby="single-tab">
+
+                <br>
+                <p>Display the feature specification of a single sound. Just pick a sound from the list below.
+                    The result shows up on the right side.
+                </p>
 
                 <div class="row">
                     <div class="col-sm" id="keyboard-single">
@@ -100,22 +111,15 @@
                     }
 
                     // For each sound, create button
-                    // Tool tips have to alternate in position, so they do not overlap
-                    if (i % 2 == 0) {
-                        tooltip_pos = "top"
-                    } else {
-                        tooltip_pos = "bottom"
-                    }
-                    $("#comp_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-bs-toggle="tooltip" data-bs-placement="' + tooltip_pos + '" data-boundary="window" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-                    $("#single_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-single" data-bs-toggle="tooltip" data-bs-placement="bottom" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-
-                    // Configure tool tips
-                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl)
-                    })
+                    $("#comp_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+                    $("#single_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-single" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
 
                 }
+
+                $('[data-toggle="tooltip"]').tooltip({
+                    trigger: "hover",
+                    placement: "bottom"
+                })
 
                 let symbol1 = ""
                 let symbol2 = ""
@@ -144,7 +148,7 @@
 
                 // Functionality of "new comparison" button
                 $("#new").on("click", function () {
-                    $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false).tooltip("hide")
+                    $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
                     $("#result1").html("")
                     $("#result2").html("")
                     sounds_picked = 0
@@ -157,10 +161,6 @@
                     symbol = $(this).val()
                     get_sounds_bundle(symbol)
                     $(this).removeClass("btn-secondary").addClass("btn-primary")
-                })
-
-                $("#single-tab").on("click", function () {
-                    $(".sounds-comp").prop("disabled", false).tooltip("hide")
                 })
             })
 
@@ -176,8 +176,11 @@
                 let feature_list = Object.keys(feature_bndl1)
                 let n_features = feature_list.length
 
-                $("#result1").append("<b>[" + symbol1 + "]<br></b>")
-                $("#result2").append("<b>[" + symbol2 + "]<br></b>")
+                let name1 = sound1.name
+                let name2 = sound2.name
+
+                $("#result1").append("<b>[" + symbol1 + "]</b><br><i>" + name1 + "</i>")
+                $("#result2").append("<b>[" + symbol2 + "]</b><br><i>" + name2 + "</i>")
 
                 // Find the features where the feature values don't agree
                 for (let i = 0; i < n_features; i++) {
@@ -199,7 +202,8 @@
                 let feature_bndl = sound.features
                 let feature_list = Object.keys(feature_bndl)
                 let n_features = feature_list.length
-                $("#result").append("<b>[" + symbol + "]</b>")
+                let name = sound.name
+                $("#result").append("<b>[" + symbol + "]</b><br><i>" + name + "</i>")
 
                 // List all features
                 for (let i = 0; i < n_features; i++) {
