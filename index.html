@@ -3,45 +3,81 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+
+
     <div class="container">
+        <br>
+        <h2>Features</h2>
+        <br>
 
-        <div class="row">
-            <div class="col-sm">
+        <!--Tab navigation-->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison"
+                    type="button" role="tab" aria-controls="comparison" aria-selected="true">Compare two sounds</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button"
+                    role="tab" aria-controls="single" aria-selected="false">Inspect single sound</button>
+            </li>
+        </ul>
 
-                <h2>Features</h2>
+        <!--Tab contents-->
+        <div class="tab-content" id="navitabs">
+            <div class="tab-pane fade show active" id="comparison" role="tabpanel" aria-labelledby="comparison-tab">
 
-                <button type="button" class="btn btn-dark" id="new">New comparison</button>
+                <div class="row">
+                    <div class="col-sm">
 
-                <br>
-                <hr>
+                        <br>
+                        <button type="button" class="btn btn-dark" id="new">New comparison</button>
+
+                        <br>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm" id="keyboard-comparison">
+                    </div>
+                    <div class="col-sm" id="result1">
+                    </div>
+                    <div class="col-sm" id="result2">
+                    </div>
+                </div>
+
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-9" id="keyboard">
-            </div>
-            <div class="col-sm" id="result1">
-            </div>
-            <div class="col-sm" id="result2">
-            </div>
+            <div class="tab-pane fade" id="single" role="tabpanel" aria-labelledby="single-tab">
 
+                <div class="row">
+                    <div class="col-sm" id="keyboard-single">
+                    </div>
+                    <div class="col-sm" id="result">
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <script>
 
 
-            // Get data
+            // Get data, then populate UI
             $.getJSON('http://localhost:8000/data.json', function (data) {
-                sounds = data
-
-
             }).then(function (data) {
+                sounds = data
 
                 // Populate UI:
                 // Find all different manner groups (plosives, nasals, fricatives, ...)
@@ -53,15 +89,31 @@
 
                     let this_sound = distinct_sounds[i]
                     let manner_group = sounds[this_sound].manner_group
+                    let name = sounds[this_sound].name
 
                     // If there hasn't been a sound of this manner group
                     // Create new div and heading
                     if (!manner_groups.includes(manner_group)) {
                         manner_groups.push(manner_group)
-                        $("#keyboard").append("<div id=" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
+                        $("#keyboard-comparison").append("<div id=comp_" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
+                        $("#keyboard-single").append("<div id=single_" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
                     }
 
-                    $("#" + manner_group).append('<button type="button" class="btn btn-secondary sounds" value="' + this_sound + '">' + this_sound + '</button> ')
+                    // For each sound, create button
+                    // Tool tips have to alternate in position, so they do not overlap
+                    if (i % 2 == 0) {
+                        tooltip_pos = "top"
+                    } else {
+                        tooltip_pos = "bottom"
+                    }
+                    $("#comp_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-bs-toggle="tooltip" data-bs-placement="' + tooltip_pos + '" data-boundary="window" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+                    $("#single_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-single" data-bs-toggle="tooltip" data-bs-placement="bottom" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+
+                    // Configure tool tips
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
 
                 }
 
@@ -70,17 +122,17 @@
 
                 let sounds_picked = 0
 
-                // Functionality of sounds "keyboard"
-                $(".sounds").on("click", function () {
+                // Functionality of sounds "keyboard" for comparison
+                $(".sounds-comp").on("click", function () {
 
-                    console.log("bla")
-
+                    // Choose first sound
                     if (sounds_picked == 0) {
                         symbol1 = $(this).val()
                         $(this).removeClass("btn-secondary").addClass("btn-primary")
                         $(this).prop("disabled", true)
                     }
 
+                    // Choose second sound
                     else if (sounds_picked == 1) {
                         symbol2 = $(this).val()
                         $(this).removeClass("btn-secondary").addClass("btn-primary")
@@ -92,15 +144,27 @@
 
                 // Functionality of "new comparison" button
                 $("#new").on("click", function () {
-                    $(".sounds").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                    $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false).tooltip("hide")
                     $("#result1").html("")
                     $("#result2").html("")
                     sounds_picked = 0
                 })
 
+                // Functionality of sounds "keyboard" for single sounds profiles
+                $(".sounds-single").on("click", function () {
+                    $(".sounds-single").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                    $("#result").html("")
+                    symbol = $(this).val()
+                    get_sounds_bundle(symbol)
+                    $(this).removeClass("btn-secondary").addClass("btn-primary")
+                })
+
+                $("#single-tab").on("click", function () {
+                    $(".sounds-comp").prop("disabled", false).tooltip("hide")
+                })
             })
 
-            // Compare to sounds
+            // Compare two sounds
             function compare(symbol1, symbol2) {
 
                 let sound1 = sounds[symbol1]
@@ -112,29 +176,38 @@
                 let feature_list = Object.keys(feature_bndl1)
                 let n_features = feature_list.length
 
-                $("#result1").append("<b>[" + symbol1 + "]</b>")
-                $("#result2").append("<b>[" + symbol2 + "]</b>")
+                $("#result1").append("<b>[" + symbol1 + "]<br></b>")
+                $("#result2").append("<b>[" + symbol2 + "]<br></b>")
 
+                // Find the features where the feature values don't agree
                 for (let i = 0; i < n_features; i++) {
 
-                    feat_value1 = feature_bndl1[feature_list[i]].toString()
-                    feat_value2 = feature_bndl2[feature_list[i]].toString()
-                    feature = feature_list[i]
+                    let feat_value1 = feature_bndl1[feature_list[i]]
+                    let feat_value2 = feature_bndl2[feature_list[i]]
+                    let feature = feature_list[i]
 
                     if (feat_value1 != feat_value2) {
-                        $("#result1").append("<br>" + "[" + minus_plus_zero(feat_value1) + feature + "]")
-                        $("#result2").append("<br>" + "[" + minus_plus_zero(feat_value2) + feature + "]")
+                        $("#result1").append("<br>" + "[" + feat_value1 + feature + "]")
+                        $("#result2").append("<br>" + "[" + feat_value2 + feature + "]")
                     }
                 }
             }
 
+            // Get feature bundle of single sound
+            function get_sounds_bundle(symbol) {
+                let sound = sounds[symbol]
+                let feature_bndl = sound.features
+                let feature_list = Object.keys(feature_bndl)
+                let n_features = feature_list.length
+                $("#result").append("<b>[" + symbol + "]</b>")
 
-            function minus_plus_zero(value) {
-                if (value == "0") return "0"
-                else if (value == "true") return "+"
-                else if (value == "false") return "-"
+                // List all features
+                for (let i = 0; i < n_features; i++) {
+                    let feat_value = feature_bndl[feature_list[i]]
+                    let feature = feature_list[i]
+                    $("#result").append("<br>" + "[" + feat_value + feature + "]")
+                }
             }
-
 
         </script>
 
