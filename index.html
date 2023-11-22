@@ -19,10 +19,10 @@
     <div class="container">
 
         <div>
-        <br>
-        <img src="logo.png" alt="logo" width="50px" style="float: left"> 
-        <h2>&nbsp;Feature Inspector</h2>
-        <br>
+            <br>
+            <img src="logo.png" alt="logo" width="50px" style="float: left">
+            <h2>&nbsp;Feature Inspector</h2>
+            <br>
         </div>
 
         <!--Tab navigation-->
@@ -45,8 +45,10 @@
                     <div class="col-9">
 
                         <br>
-                        <p>Find out about the differences between two sounds in terms of their feature specifications. Select two sounds and view the result on the right side. 
-                            Use the button "New comparison" to remove previous results and start the next comparison.</p>
+                        <p>Find out about the differences between two sounds in terms of their feature specifications.
+                            Select two sounds and view the result on the right side.
+                            Use the button "New comparison" to remove previous results and start the next comparison.
+                        </p>
                         <button type="button" class="btn btn-dark" id="new">New comparison</button>
 
                         <br>
@@ -82,11 +84,13 @@
             </div>
         </div>
 
+        <!--Load config script including server information-->
+        <script src="config.js"></script>
+
         <script>
 
-
             // Get data, then populate UI
-            $.getJSON('http://localhost:8000/data.json', function (data) {
+            $.getJSON(server + "/data.json", function (data) {
             }).then(function (data) {
                 sounds = data
 
