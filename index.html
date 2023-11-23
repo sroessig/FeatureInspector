@@ -8,6 +8,15 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
+    <style>
+        .keyboard {
+            line-height: 2.5;
+            margin-right: 50px;
+        }
+        h5 {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -57,7 +66,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-sm" id="keyboard-comparison">
+                    <div class="col-sm keyboard" id="keyboard-comparison">
                     </div>
                     <div class="col-sm" id="result1">
                     </div>
@@ -75,7 +84,7 @@
                 </p>
 
                 <div class="row">
-                    <div class="col-sm" id="keyboard-single">
+                    <div class="col-sm keyboard" id="keyboard-single">
                     </div>
                     <div class="col-sm" id="result">
                     </div>
@@ -106,12 +115,18 @@
                     let manner_group = sounds[this_sound].manner_group
                     let name = sounds[this_sound].name
 
+                    if (manner_group == "tapflap") {
+                        manner_group_heading = "tap / flap"
+                    } else {
+                        manner_group_heading = manner_group
+                    }
+
                     // If there hasn't been a sound of this manner group
                     // Create new div and heading
                     if (!manner_groups.includes(manner_group)) {
                         manner_groups.push(manner_group)
-                        $("#keyboard-comparison").append("<div id=comp_" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
-                        $("#keyboard-single").append("<div id=single_" + manner_group + "><br><h5>" + manner_group + "</h5></div>")
+                        $("#keyboard-comparison").append("<div id=comp_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
+                        $("#keyboard-single").append("<div id=single_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
                     }
 
                     // For each sound, create button
