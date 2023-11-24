@@ -11,8 +11,9 @@
     <style>
         .keyboard {
             line-height: 2.5;
-            margin-right: 50px;
+            margin-right: 100px;
         }
+
         h5 {
             margin-top: 20px;
         }
@@ -58,9 +59,27 @@
                             Select two sounds and view the result on the right side.
                             Use the button "New comparison" to remove previous results and start the next comparison.
                         </p>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-2">
                         <button type="button" class="btn btn-dark" id="new">New comparison</button>
 
-                        <br>
+                    </div>
+                    <div class="col-1">
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="differences-switch"
+                                checked>
+                            <label class="form-check-label" for="differences-switch">Differences</label>
+                        </div>
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="similarities-switch">
+                            <label class="form-check-label" for="similarities-switch">Similarities</label>
+                        </div>
 
                     </div>
                 </div>
@@ -69,8 +88,10 @@
                     <div class="col-sm keyboard" id="keyboard-comparison">
                     </div>
                     <div class="col-sm" id="result1">
+                        <br><br>
                     </div>
                     <div class="col-sm" id="result2">
+                        <br><br>
                     </div>
                 </div>
 
@@ -97,6 +118,7 @@
         <script src="config.js"></script>
 
         <script>
+
 
             // Get data, then populate UI
             $.getJSON(server + "/data.json", function (data) {
@@ -140,10 +162,15 @@
                     placement: "bottom"
                 })
 
+                // Can be diff or sim
+                let comparison_type = "diff"
+
+                // Two sounds are needed for a comparison
+                // This var makes sure the condition is met
+                let sounds_picked = 0
+
                 let symbol1 = ""
                 let symbol2 = ""
-
-                let sounds_picked = 0
 
                 // Functionality of sounds "keyboard" for comparison
                 $(".sounds-comp").on("click", function () {
@@ -160,7 +187,7 @@
                         symbol2 = $(this).val()
                         $(this).removeClass("btn-secondary").addClass("btn-primary")
                         $(this).prop("disabled", true)
-                        compare(symbol1, symbol2)
+                        compare(symbol1, symbol2, comparison_type)
                     }
                     sounds_picked += 1
                 })
@@ -168,8 +195,7 @@
                 // Functionality of "new comparison" button
                 $("#new").on("click", function () {
                     $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
-                    $("#result1").html("")
-                    $("#result2").html("")
+                    wipe_results_div()
                     sounds_picked = 0
                 })
 
@@ -181,10 +207,34 @@
                     get_sounds_bundle(symbol)
                     $(this).removeClass("btn-secondary").addClass("btn-primary")
                 })
+
+                // Functionality of comparison type switches
+                $("#differences-switch").on("change", function (e) {
+                    if ($(this).prop("checked") == true) {
+                        $("#similarities-switch").prop("checked", false)
+                        comparison_type = "diff"
+                    }
+                    wipe_results_div()
+                    if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
+                })
+
+                $("#similarities-switch").on("change", function (e) {
+                    if ($(this).prop("checked") == true) {
+                        $("#differences-switch").prop("checked", false)
+                        comparison_type = "sim"
+                    }
+                    wipe_results_div()
+                    if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
+                })
             })
 
+            function wipe_results_div() {
+                $("#result1").html("<br>")
+                $("#result2").html("<br>")
+            }
+
             // Compare two sounds
-            function compare(symbol1, symbol2) {
+            function compare(symbol1, symbol2, comp_type) {
 
                 let sound1 = sounds[symbol1]
                 let sound2 = sounds[symbol2]
@@ -208,9 +258,16 @@
                     let feat_value2 = feature_bndl2[feature_list[i]]
                     let feature = feature_list[i]
 
-                    if (feat_value1 != feat_value2) {
-                        $("#result1").append("<br>" + "[" + feat_value1 + feature + "]")
-                        $("#result2").append("<br>" + "[" + feat_value2 + feature + "]")
+                    if (comp_type == "diff") {
+                        if (feat_value1 != feat_value2) {
+                            $("#result1").append("<br><font color='#fd5e77'>" + "[" + feat_value1 + feature + "]</font>")
+                            $("#result2").append("<br><font color='#fd5e77'>" + "[" + feat_value2 + feature + "]</font>")
+                        }
+                    } else if (comp_type == "sim") {
+                        if (feat_value1 == feat_value2) {
+                            $("#result1").append("<br><font color='#27bf6b'>" + "[" + feat_value1 + feature + "]</font>")
+                            $("#result2").append("<br><font color='#27bf6b'>" + "[" + feat_value2 + feature + "]</font>")
+                        }
                     }
                 }
             }
