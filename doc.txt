@@ -1,8 +1,0 @@
-
-1. Set up simple python web server: 
-    cd C:\Users\simon\Dropbox\FeatureApp
-    python -m http.server
-
-2. Call website in browser: http://localhost:8000/index.html
-
-3. When deploying change config.js script to point to the right server
