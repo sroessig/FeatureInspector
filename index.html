@@ -140,7 +140,7 @@
                 <div class="row">
                     <div class="col-9">
                         <br>
-                        <p>Find sounds by feature and feature values. The feature specifications are based on Hayes
+                        <p>Find sounds by feature value. For example, list all sounds that are [+nasal] or [-sonorant]. The feature specifications are based on Hayes
                             (2009): Introductory Phonology.
                         </p>
                     </div>
@@ -227,7 +227,7 @@
                     // For each feature, create button
                     for (let i = 0; i < n_features; i++) {
                         let this_feature = all_features[i]
-                        $("#feature-list").append('<p><button type="button" class="btn btn-secondary feature-button" value="+' + this_feature + '">+' + this_feature + '</button> <button type="button" class="btn btn-secondary feature-button" value="-' + this_feature + '">-' + this_feature + '</button>')
+                        $("#feature-list").append('<p><button type="button" class="btn btn-secondary btn-sm feature-button" value="+' + this_feature + '">+' + this_feature + '</button> <button type="button" class="btn btn-secondary btn-sm feature-button" value="-' + this_feature + '">-' + this_feature + '</button>')
                         $("#feature-list").append('</p>')
                     }
 
@@ -386,8 +386,9 @@
                 function search_sounds_with_feature(feature_value, feature_name) {
                     let n_sounds = Object.keys(sounds).length
                     let distinct_sounds = Object.keys(sounds)
-                    $("#result-by-feature").html("[")
+                    $("#result-by-feature").html("<b>Sounds that are [" + feature_value + feature_name + "]:</b> <br><br> [")
                     let first_sound_written = false
+                    
                     for (let i = 0; i < n_sounds; i++) {
                         let this_sound = distinct_sounds[i]
                         let feature_bndl = sounds[this_sound].features
