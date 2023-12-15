@@ -318,10 +318,13 @@
 
             $(".feature-button").on("click", function () {
                 let button_val = $(this).val()
-                feature_value = button_val.substring(0, 1)
-                feature_name = button_val.substring(1)
+                let feature_value = button_val.substring(0, 1)
+                let feature_name = button_val.substring(1)
                 search_sounds_with_feature(feature_value, feature_name)
+                $(".feature-button").removeClass("btn-primary").addClass("btn-secondary")
+                $(this).removeClass("btn-secondary").addClass("btn-primary")
             })
+
         })
 
 
