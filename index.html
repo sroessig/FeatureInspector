@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <title>FeatureInspector</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -39,7 +40,7 @@
 
         <div>
             <br>
-            <img src="logo.png" alt="logo" width="50px" style="float: left">
+            <img src="logo.png" alt="logo" width="50" style="float: left">
             <h2>&nbsp;Feature Inspector (Beta)</h2>
             <br>
         </div>
@@ -55,8 +56,9 @@
                     role="tab" aria-controls="single" aria-selected="false">Inspect single sound</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="single-tab" data-bs-toggle="tab" data-bs-target="#by-feature" type="button"
-                    role="tab" aria-controls="single" aria-selected="false">Find sounds by feature</button>
+                <button class="nav-link" id="by-feature-tab" data-bs-toggle="tab" data-bs-target="#by-feature"
+                    type="button" role="tab" aria-controls="single" aria-selected="false">Find sounds by
+                    feature</button>
             </li>
         </ul>
 
@@ -140,7 +142,8 @@
                 <div class="row">
                     <div class="col-9">
                         <br>
-                        <p>Find sounds by feature value. For example, list all sounds that are [+nasal] or [-sonorant]. The feature specifications are based on Hayes
+                        <p>Find sounds by feature value. For example, list all sounds that are [+nasal] or [-sonorant].
+                            The feature specifications are based on Hayes
                             (2009): Introductory Phonology.
                         </p>
                     </div>
@@ -156,254 +159,256 @@
                 </div>
 
             </div>
+        </div>
+    </div>
 
-            <script>
+    <script>
 
-                let url_parts = window.location.href.split("/")
-                let server = "http://" + url_parts[2] + "/" + url_parts[3]
+        let url_parts = window.location.href.split("/")
+        let server = url_parts[0] + "//" + url_parts[2] + "/" + url_parts[3]
 
-                // Get data, then populate UI
-                $.getJSON(server + "/data.json", function (data) {
-                }).then(function (data) {
-                    sounds = data
+        // Get data, then populate UI
+        $.getJSON(server + "/data.json", function (data) {
+        }).then(function (data) {
+            sounds = data
 
-                    // Populate UI:
-                    // Find all different manner groups (plosives, nasals, fricatives, ...)
-                    // and make one heading and div for them
-                    let n_sounds = Object.keys(sounds).length
-                    let distinct_sounds = Object.keys(sounds)
-                    let manner_groups = []
-                    let place_groups = []
-                    for (let i = 0; i < n_sounds; i++) {
+            // Populate UI:
+            // Find all different manner groups (plosives, nasals, fricatives, ...)
+            // and make one heading and div for them
+            let n_sounds = Object.keys(sounds).length
+            let distinct_sounds = Object.keys(sounds)
+            let manner_groups = []
+            let place_groups = []
+            for (let i = 0; i < n_sounds; i++) {
 
-                        let this_sound = distinct_sounds[i]
-                        let manner_group = sounds[this_sound].manner_group
-                        let place_group = sounds[this_sound].place_group
-                        let name = sounds[this_sound].name
+                let this_sound = distinct_sounds[i]
+                let manner_group = sounds[this_sound].manner_group
+                let place_group = sounds[this_sound].place_group
+                let name = sounds[this_sound].name
 
-                        if (manner_group == "tapflap") {
-                            manner_group_heading = "tap / flap"
-                        } else {
-                            manner_group_heading = manner_group
-                        }
+                if (manner_group == "tapflap") {
+                    manner_group_heading = "tap / flap"
+                } else {
+                    manner_group_heading = manner_group
+                }
 
-                        // If there hasn't been a sound of this manner group
-                        // create new div and heading
-                        if (!manner_groups.includes(manner_group)) {
-                            manner_groups.push(manner_group)
-                            $("#keyboard-comparison").append("<div id=comp_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
-                            $("#keyboard-single").append("<div id=single_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
-                        }
+                // If there hasn't been a sound of this manner group
+                // create new div and heading
+                if (!manner_groups.includes(manner_group)) {
+                    manner_groups.push(manner_group)
+                    $("#keyboard-comparison").append("<div id=comp_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
+                    $("#keyboard-single").append("<div id=single_" + manner_group + "><h5>" + manner_group_heading + "</h5></div>")
+                }
 
-                        // For vowel also show place group
-                        // If it is a vowel and if there hasn't been a sound of this place group
-                        // create new div and heading
-                        if (manner_group == "vowel") {
-                            if (!place_groups.includes(place_group)) {
-                                place_groups.push(place_group)
-                                $("#keyboard-comparison").append("<div id=comp_" + place_group + " class='vowel_place'><h6>" + place_group + "</h6></div>")
-                                $("#keyboard-single").append("<div id=single_" + place_group + " class='vowel_place'><h6>" + place_group + "</h6></div>")
-                            }
-                        }
-
-                        // For each sound, create button
-                        if (manner_group == "vowel") {
-                            $("#comp_" + place_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-                            $("#single_" + place_group).append('<button type="button" class="btn btn-secondary sounds-single" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-
-                        } else {
-                            $("#comp_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-                            $("#single_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-single" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
-                        }
-
+                // For vowel also show place group
+                // If it is a vowel and if there hasn't been a sound of this place group
+                // create new div and heading
+                if (manner_group == "vowel") {
+                    if (!place_groups.includes(place_group)) {
+                        place_groups.push(place_group)
+                        $("#keyboard-comparison").append("<div id=comp_" + place_group + " class='vowel_place'><h6>" + place_group + "</h6></div>")
+                        $("#keyboard-single").append("<div id=single_" + place_group + " class='vowel_place'><h6>" + place_group + "</h6></div>")
                     }
+                }
 
-                    // Get list of all features
-                    // Simply get features as keys from first sound in the list
-                    let first_sound = sounds[distinct_sounds[0]]
-                    let all_features = Object.keys(first_sound.features)
-                    let n_features = all_features.length
+                // For each sound, create button
+                if (manner_group == "vowel") {
+                    $("#comp_" + place_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+                    $("#single_" + place_group).append('<button type="button" class="btn btn-secondary sounds-single" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
 
-                    // For each feature, create button
-                    for (let i = 0; i < n_features; i++) {
-                        let this_feature = all_features[i]
-                        $("#feature-list").append('<p><button type="button" class="btn btn-secondary btn-sm feature-button" value="+' + this_feature + '">+' + this_feature + '</button> <button type="button" class="btn btn-secondary btn-sm feature-button" value="-' + this_feature + '">-' + this_feature + '</button>')
-                        $("#feature-list").append('</p>')
-                    }
+                } else {
+                    $("#comp_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-comp" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+                    $("#single_" + manner_group).append('<button type="button" class="btn btn-secondary sounds-single" data-toggle="tooltip" title="' + name + '" value="' + this_sound + '">' + this_sound + '</button> ')
+                }
 
-                    if (!('ontouchstart' in window)) {
+            }
 
-                        $('[data-toggle="tooltip"]').tooltip({
-                            trigger: "hover",
-                            placement: "bottom"
-                        })
-                    }
+            // Get list of all features
+            // Simply get features as keys from first sound in the list
+            let first_sound = sounds[distinct_sounds[0]]
+            let all_features = Object.keys(first_sound.features)
+            let n_features = all_features.length
 
-                    // Can be diff or sim
-                    let comparison_type = "diff"
+            // For each feature, create button
+            for (let i = 0; i < n_features; i++) {
+                let this_feature = all_features[i]
+                $("#feature-list").append('<p><button type="button" class="btn btn-secondary btn-sm feature-button" value="+' + this_feature + '">+' + this_feature + '</button> <button type="button" class="btn btn-secondary btn-sm feature-button" value="-' + this_feature + '">-' + this_feature + '</button>')
+                $("#feature-list").append('</p>')
+            }
 
-                    // Two sounds are needed for a comparison
-                    // This var makes sure the condition is met
-                    let sounds_picked = 0
+            if (!('ontouchstart' in window)) {
 
-                    let symbol1 = ""
-                    let symbol2 = ""
-
-                    // Functionality of sounds "keyboard" for comparison
-                    $(".sounds-comp").on("click", function () {
-
-                        // Choose first sound
-                        if (sounds_picked == 0) {
-                            symbol1 = $(this).val()
-                            $(this).removeClass("btn-secondary").addClass("btn-primary")
-                            $(this).prop("disabled", true)
-                        }
-
-                        // Choose second sound
-                        else if (sounds_picked == 1) {
-                            symbol2 = $(this).val()
-                            $(this).removeClass("btn-secondary").addClass("btn-primary")
-                            $(this).prop("disabled", true)
-                            compare(symbol1, symbol2, comparison_type)
-                        }
-                        sounds_picked += 1
-                    })
-
-                    // Functionality of "new comparison" button
-                    $("#new").on("click", function () {
-                        $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
-                        wipe_results_div()
-                        sounds_picked = 0
-                    })
-
-                    // Functionality of sounds "keyboard" for single sounds profiles
-                    $(".sounds-single").on("click", function () {
-                        $(".sounds-single").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
-                        $("#result").html("")
-                        symbol = $(this).val()
-                        get_sounds_bundle(symbol)
-                        $(this).removeClass("btn-secondary").addClass("btn-primary")
-                    })
-
-                    // Functionality of comparison type switches
-                    $("#differences-switch").on("change", function (e) {
-                        if ($(this).prop("checked") == true) {
-                            $("#similarities-switch").prop("checked", false)
-                            comparison_type = "diff"
-                        } else {
-                            $("#similarities-switch").prop("checked", true)
-                            comparison_type = "sim"
-                        }
-                        wipe_results_div()
-                        if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
-                    })
-
-                    $("#similarities-switch").on("change", function (e) {
-                        if ($(this).prop("checked") == true) {
-                            $("#differences-switch").prop("checked", false)
-                            comparison_type = "sim"
-                        } else {
-                            $("#differences-switch").prop("checked", true)
-                            comparison_type = "diff"
-                        }
-                        wipe_results_div()
-                        if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
-                    })
-
-
-                    $(".feature-button").on("click", function () {
-                        let button_val = $(this).val()
-                        feature_value = button_val.substring(0, 1)
-                        feature_name = button_val.substring(1)
-                        search_sounds_with_feature(feature_value, feature_name)
-                    })
+                $('[data-toggle="tooltip"]').tooltip({
+                    trigger: "hover",
+                    placement: "bottom"
                 })
+            }
 
+            // Can be diff or sim
+            let comparison_type = "diff"
 
+            // Two sounds are needed for a comparison
+            // This var makes sure the condition is met
+            let sounds_picked = 0
 
-                function wipe_results_div() {
-                    $("#result1").html("<br>")
-                    $("#result2").html("<br>")
+            let symbol1 = ""
+            let symbol2 = ""
+
+            // Functionality of sounds "keyboard" for comparison
+            $(".sounds-comp").on("click", function () {
+
+                // Choose first sound
+                if (sounds_picked == 0) {
+                    symbol1 = $(this).val()
+                    $(this).removeClass("btn-secondary").addClass("btn-primary")
+                    $(this).prop("disabled", true)
                 }
 
-                // Compare two sounds
-                function compare(symbol1, symbol2, comp_type) {
+                // Choose second sound
+                else if (sounds_picked == 1) {
+                    symbol2 = $(this).val()
+                    $(this).removeClass("btn-secondary").addClass("btn-primary")
+                    $(this).prop("disabled", true)
+                    compare(symbol1, symbol2, comparison_type)
+                }
+                sounds_picked += 1
+            })
 
-                    let sound1 = sounds[symbol1]
-                    let sound2 = sounds[symbol2]
+            // Functionality of "new comparison" button
+            $("#new").on("click", function () {
+                $(".sounds-comp").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                wipe_results_div()
+                sounds_picked = 0
+            })
 
-                    let feature_bndl1 = sound1.features
-                    let feature_bndl2 = sound2.features
+            // Functionality of sounds "keyboard" for single sounds profiles
+            $(".sounds-single").on("click", function () {
+                $(".sounds-single").removeClass("btn-primary").addClass("btn-secondary").prop("disabled", false)
+                $("#result").html("")
+                symbol = $(this).val()
+                get_sounds_bundle(symbol)
+                $(this).removeClass("btn-secondary").addClass("btn-primary")
+            })
 
-                    let feature_list = Object.keys(feature_bndl1)
-                    let n_features = feature_list.length
+            // Functionality of comparison type switches
+            $("#differences-switch").on("change", function (e) {
+                if ($(this).prop("checked") == true) {
+                    $("#similarities-switch").prop("checked", false)
+                    comparison_type = "diff"
+                } else {
+                    $("#similarities-switch").prop("checked", true)
+                    comparison_type = "sim"
+                }
+                wipe_results_div()
+                if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
+            })
 
-                    let name1 = sound1.name
-                    let name2 = sound2.name
+            $("#similarities-switch").on("change", function (e) {
+                if ($(this).prop("checked") == true) {
+                    $("#differences-switch").prop("checked", false)
+                    comparison_type = "sim"
+                } else {
+                    $("#differences-switch").prop("checked", true)
+                    comparison_type = "diff"
+                }
+                wipe_results_div()
+                if (sounds_picked == 2) compare(symbol1, symbol2, comparison_type)
+            })
 
-                    $("#result1").append("<b>[" + symbol1 + "]</b><br><i>" + name1 + "</i>")
-                    $("#result2").append("<b>[" + symbol2 + "]</b><br><i>" + name2 + "</i>")
 
-                    // Find the features where the feature values don't agree
-                    for (let i = 0; i < n_features; i++) {
+            $(".feature-button").on("click", function () {
+                let button_val = $(this).val()
+                feature_value = button_val.substring(0, 1)
+                feature_name = button_val.substring(1)
+                search_sounds_with_feature(feature_value, feature_name)
+            })
+        })
 
-                        let feat_value1 = feature_bndl1[feature_list[i]]
-                        let feat_value2 = feature_bndl2[feature_list[i]]
-                        let feature = feature_list[i]
 
-                        if (comp_type == "diff") {
-                            if (feat_value1 != feat_value2) {
-                                $("#result1").append("<br><font color='#fd5e77'>" + "[" + feat_value1 + feature + "]</font>")
-                                $("#result2").append("<br><font color='#fd5e77'>" + "[" + feat_value2 + feature + "]</font>")
-                            }
-                        } else if (comp_type == "sim") {
-                            if (feat_value1 == feat_value2) {
-                                $("#result1").append("<br><font color='#27bf6b'>" + "[" + feat_value1 + feature + "]</font>")
-                                $("#result2").append("<br><font color='#27bf6b'>" + "[" + feat_value2 + feature + "]</font>")
-                            }
-                        }
+
+        function wipe_results_div() {
+            $("#result1").html("<br>")
+            $("#result2").html("<br>")
+        }
+
+        // Compare two sounds
+        function compare(symbol1, symbol2, comp_type) {
+
+            let sound1 = sounds[symbol1]
+            let sound2 = sounds[symbol2]
+
+            let feature_bndl1 = sound1.features
+            let feature_bndl2 = sound2.features
+
+            let feature_list = Object.keys(feature_bndl1)
+            let n_features = feature_list.length
+
+            let name1 = sound1.name
+            let name2 = sound2.name
+
+            $("#result1").append("<b>[" + symbol1 + "]</b><br><i>" + name1 + "</i>")
+            $("#result2").append("<b>[" + symbol2 + "]</b><br><i>" + name2 + "</i>")
+
+            // Find the features where the feature values don't agree
+            for (let i = 0; i < n_features; i++) {
+
+                let feat_value1 = feature_bndl1[feature_list[i]]
+                let feat_value2 = feature_bndl2[feature_list[i]]
+                let feature = feature_list[i]
+
+                if (comp_type == "diff") {
+                    if (feat_value1 != feat_value2) {
+                        $("#result1").append("<br><font color='#fd5e77'>" + "[" + feat_value1 + feature + "]</font>")
+                        $("#result2").append("<br><font color='#fd5e77'>" + "[" + feat_value2 + feature + "]</font>")
+                    }
+                } else if (comp_type == "sim") {
+                    if (feat_value1 == feat_value2) {
+                        $("#result1").append("<br><font color='#27bf6b'>" + "[" + feat_value1 + feature + "]</font>")
+                        $("#result2").append("<br><font color='#27bf6b'>" + "[" + feat_value2 + feature + "]</font>")
                     }
                 }
+            }
+        }
 
-                // Get feature bundle of single sound
-                function get_sounds_bundle(symbol) {
-                    let sound = sounds[symbol]
-                    let feature_bndl = sound.features
-                    let feature_list = Object.keys(feature_bndl)
-                    let n_features = feature_list.length
-                    let name = sound.name
-                    $("#result").append("<b>[" + symbol + "]</b><br><i>" + name + "</i>")
+        // Get feature bundle of single sound
+        function get_sounds_bundle(symbol) {
+            let sound = sounds[symbol]
+            let feature_bndl = sound.features
+            let feature_list = Object.keys(feature_bndl)
+            let n_features = feature_list.length
+            let name = sound.name
+            $("#result").append("<b>[" + symbol + "]</b><br><i>" + name + "</i>")
 
-                    // List all features
-                    for (let i = 0; i < n_features; i++) {
-                        let feat_value = feature_bndl[feature_list[i]]
-                        let feature = feature_list[i]
-                        $("#result").append("<br>" + "[" + feat_value + feature + "]")
-                    }
+            // List all features
+            for (let i = 0; i < n_features; i++) {
+                let feat_value = feature_bndl[feature_list[i]]
+                let feature = feature_list[i]
+                $("#result").append("<br>" + "[" + feat_value + feature + "]")
+            }
+        }
+
+        // Find all sounds that have a certain feature spec (e.g., [+delayed release])
+        function search_sounds_with_feature(feature_value, feature_name) {
+            let n_sounds = Object.keys(sounds).length
+            let distinct_sounds = Object.keys(sounds)
+            $("#result-by-feature").html("<b>Sounds that are [" + feature_value + feature_name + "]:</b> <br><br> [")
+            let first_sound_written = false
+
+            for (let i = 0; i < n_sounds; i++) {
+                let this_sound = distinct_sounds[i]
+                let feature_bndl = sounds[this_sound].features
+                let this_value = feature_bndl[feature_name]
+
+                if (this_value == feature_value) {
+                    if (first_sound_written) $("#result-by-feature").append("&emsp;")
+                    $("#result-by-feature").append(this_sound)
+                    first_sound_written = true
                 }
+            }
+            $("#result-by-feature").append("]")
+        }
 
-                // Find all sounds that have a certain feature spec (e.g., [+delayed release])
-                function search_sounds_with_feature(feature_value, feature_name) {
-                    let n_sounds = Object.keys(sounds).length
-                    let distinct_sounds = Object.keys(sounds)
-                    $("#result-by-feature").html("<b>Sounds that are [" + feature_value + feature_name + "]:</b> <br><br> [")
-                    let first_sound_written = false
-                    
-                    for (let i = 0; i < n_sounds; i++) {
-                        let this_sound = distinct_sounds[i]
-                        let feature_bndl = sounds[this_sound].features
-                        let this_value = feature_bndl[feature_name]
-
-                        if (this_value == feature_value) {                            
-                            if (first_sound_written) $("#result-by-feature").append("&emsp;")
-                            $("#result-by-feature").append(this_sound)
-                            first_sound_written = true
-                        }
-                    }
-                    $("#result-by-feature").append("]")
-                }
-
-            </script>
+    </script>
 
 </body>
 
